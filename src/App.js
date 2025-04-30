@@ -17,12 +17,9 @@ function drawWheel(players, selectedPlayers = []) {
     const startAngle = index * anglePerPlayer;
     const endAngle = startAngle + anglePerPlayer;
 
-    // If player is selected, use GOLD color, otherwise random color
-    if (selectedPlayers.includes(player)) {
-      ctx.fillStyle = "gold";
-    } else {
-      ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 70%)`;
-    }
+    ctx.fillStyle = selectedPlayers.includes(player)
+      ? "gold"
+      : `hsl(${Math.random() * 360}, 70%, 70%)`;
 
     ctx.beginPath();
     ctx.moveTo(center, center);
@@ -30,107 +27,46 @@ function drawWheel(players, selectedPlayers = []) {
     ctx.closePath();
     ctx.fill();
 
-    // Draw text
     ctx.save();
     ctx.translate(center, center);
     ctx.rotate(startAngle + anglePerPlayer / 2);
     ctx.textAlign = "right";
     ctx.fillStyle = "#333";
-    ctx.font = selectedPlayers.includes(player) ? "bold 18px Arial" : "16px Arial";
+    ctx.font = selectedPlayers.includes(player)
+      ? "bold 18px Arial"
+      : "16px Arial";
     ctx.fillText(player, center - 10, 5);
     ctx.restore();
   });
 }
 
-
-function FlipCard({ category }) {
+function FlipCard({ scenario, situation, inappropriateAnswer }) {
   const [flipped, setFlipped] = useState(false);
 
   return (
     <div className={`card ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(!flipped)}>
       <div className="card-inner">
-        <div className="card-front"></div>
-        <div className="card-back">{category}</div>
+        <div className="card-front">
+          <h3>{scenario}</h3>
+        </div>
+        <div className="card-back">
+          <div className="card-details">
+            <p><strong>Situation:</strong> {situation}</p>
+            <p><strong>Inappropriate Answer:</strong> {inappropriateAnswer}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 function App() {
-  const categories = [
-    {
-      name: "Settings",
-      cards: [
-        "Waiting for the subway after work",
-        "Having coffee in a café",
-        "Casual chat at the office pantry",
-        "Walking out of a meeting room",
-        "Sitting together at a team lunch",
-        "Giving feedback after a project presentation",
-        "Bumped into each other at a company networking event",
-        "Preparing slides together for a client meeting",
-      ],
-    },
-    {
-      name: "Person A",
-      cards: [
-        "Department Leader",
-        "Visitor from a Rival Company",
-        "Nepo Baby",
-        "HR Specialist",
-        "Project Manager",
-        "CEO",
-        "New Employee",
-        "Intern",
-      ],
-    },
-    {
-      name: "Person B",
-      cards: [
-        "Burnt-out Employee",
-        "Gossip Starter",
-        "Ambitious Newcomer",
-        "Skeptical Investor",
-        "Out-of-Touch Senior Executive",
-        "Over-enthusiastic Intern",
-        "Freelance Consultant",
-        "Office Clown",
-      ],
-    },
-    {
-      name: "Tone",
-      cards: [
-        "Formal",
-        "Friendly",
-        "Direct",
-        "Humble",
-        "Assertive",
-        "Negotiating",
-        "Funny",
-        "Unattentive",
-      ],
-    },
-    {
-      name: "Word",
-      cards: [
-        "Synergy",
-        "Bandwidth",
-        "Circle-back",
-        "Alignment",
-        "Efficiency",
-        "Scalability",
-        "Stakeholder",
-        "Move the needle",
-      ],
-    },
-  ];
   const [showModal, setShowModal] = useState(false);
   const [players, setPlayers] = useState([]);
   const [newPlayer, setNewPlayer] = useState("");
   const [selectedPlayers, setSelectedPlayers] = useState([]);
-
-  const [spinning, setSpinning] = useState(false);  
-  const [rotation, setRotation] = useState(0);    
+  const [spinning, setSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
 
   const handleAddPlayer = () => {
     if (newPlayer.trim() !== "") {
@@ -142,15 +78,15 @@ function App() {
   const handleSpin = () => {
     if (players.length >= 2) {
       setSpinning(true);
-      const randomExtra = 360 * 5 + Math.floor(Math.random() * 360); // always 5 full spins + random
-      setRotation(prev => prev + randomExtra); // ADD to previous rotation
-  
+      const randomExtra = 360 * 5 + Math.floor(Math.random() * 360);
+      setRotation(prev => prev + randomExtra);
+
       setTimeout(() => {
         const shuffled = [...players].sort(() => 0.5 - Math.random());
         const winners = shuffled.slice(0, 2);
         setSelectedPlayers(winners);
         setSpinning(false);
-      }, 3000); // 3 seconds spin
+      }, 3000);
     } else {
       alert("Add at least 2 players!");
     }
@@ -169,18 +105,66 @@ function App() {
     drawWheel(players, selectedPlayers);
   }, [players, selectedPlayers]);
 
+  const scenarios = [
+    {
+      scenario: "Scenario 1",
+      situation: "You’re the new hire and feeling overwhelmed with your first project. You ask a coworker for help.",
+      inappropriateAnswer: "Uh, I have no idea what I’m doing. Can you just help me figure it out real quick?"
+    },
+    {
+      scenario: "Scenario 2",
+      situation: "Your boss calls after hours and asks for quick help on a presentation issue.",
+      inappropriateAnswer: "You should’ve told me earlier. I’m not doing it now."
+    },
+    {
+      scenario: "Scenario 3",
+      situation: "You share an idea in a meeting, and a coworker repeats it and gets praised.",
+      inappropriateAnswer: "Oh wow, nice of you to steal my idea and act like it was yours."
+    },
+    {
+      scenario: "Scenario 4",
+      situation: "A coworker drops work on you last minute and expects you to do it quickly.",
+      inappropriateAnswer: "Absolutely not. I don’t work overtime for people who can’t manage theirs."
+    },
+    {
+      scenario: "Scenario 5",
+      situation: "You’re trying to focus but a coworker keeps gossiping at your desk.",
+      inappropriateAnswer: "Hey, I really can’t deal with this right now, can we talk later or something?"
+    },
+    {
+      scenario: "Scenario 6",
+      situation: "Your manager gives you three overlapping tasks without help.",
+      inappropriateAnswer: "Okay, but three big tasks with no help? I’m going to need more time or resources."
+    },
+    {
+      scenario: "Scenario 7",
+      situation: "One group member never responds but gets equal credit.",
+      inappropriateAnswer: "Hey, it’d be nice if we could all pitch in. It feels like we’re doing most of the work here."
+    },
+    {
+      scenario: "Scenario 8",
+      situation: "Your boss micromanages and checks in every 20 minutes.",
+      inappropriateAnswer: "I’d appreciate a little more space to focus without so many check-ins."
+    },
+    {
+      scenario: "Scenario 9",
+      situation: "You’re constantly interrupted by unnecessary pings during a deadline.",
+      inappropriateAnswer: "I can’t keep doing this. Can you just stop messaging me for a bit?"
+    },
+    {
+      scenario: "Scenario 10",
+      situation: "Your coworker critiques your work loudly in front of others.",
+      inappropriateAnswer: "You didn’t need to embarrass me like that. Ever heard of private feedback?"
+    }
+  ];
+
   return (
     <div className="App">
       <h1>Roleplay Flip Card Game</h1>
 
       <div className="game-board">
-        {categories.map((category, index) => (
-          <div className="category-column" key={index}>
-            <div className="category-title">{category.name}</div>
-            {category.cards.map((cardText, cardIndex) => (
-              <FlipCard key={cardIndex} category={cardText} />
-            ))}
-          </div>
+        {scenarios.map((s, i) => (
+          <FlipCard key={i} {...s} />
         ))}
       </div>
 
@@ -190,10 +174,10 @@ function App() {
 
       {showModal && (
         <div className="modal">
+          <div className="modal-header">
+            <button className="close-button" onClick={() => setShowModal(false)}>×</button>
+          </div>
           <div className="modal-content">
-          <button className="close-button" onClick={() => setShowModal(false)}>
-            ×
-          </button>
             <h2>🎯 Add Players</h2>
 
             <div className="player-input">
@@ -223,7 +207,7 @@ function App() {
             </div>
 
             <div 
-              className="wheel-container" 
+              className="wheel-container"
               onDoubleClick={handleWheelDoubleClick}
               style={{
                 transform: `rotate(${rotation}deg)`,
